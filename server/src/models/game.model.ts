@@ -19,8 +19,9 @@ export class Game extends Entity {
   @property({
     type: 'array',    
     itemType: 'string',
+    required: true,
   })
-  team_ids?: string[];
+  team_ids: string[];
 
   constructor(data?: Partial<Game>) {
     super(data);

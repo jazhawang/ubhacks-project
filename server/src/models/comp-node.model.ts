@@ -5,10 +5,10 @@ export class CompNode extends Entity {
   @property({
     type: 'string',
     id: true,
-    generated: true,
+    generated: true,    
     defaultFn: 'uuid',
   })
-  id?: string;
+  id: string;
 
   @property({
     type: 'string',    
@@ -27,7 +27,7 @@ export class CompNode extends Entity {
     itemType: 'number',
     required: true,
   })
-  subarray: (number | null)[];
+  subarray: number[];
 
   @property({
     type: 'array',

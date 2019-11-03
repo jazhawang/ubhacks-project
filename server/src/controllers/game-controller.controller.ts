@@ -43,12 +43,44 @@ export class GameControllerController {
   })
   async getInfo(    
     @param.path.string('game_hash') game_hash: string,
-  ): Promise<NodeOutputType> {
+  ): Promise<NodeOutputType[]> {
+    const game = await this.gameRepository.findOne({where : {game_hash}});
+    if (game == null) {
+      throw new Error("No game found");
+    }
+
+    const teamRoots = await Promise.all(
+      game.team_ids.map(async (team_id) => {
+        const team = await this.teamRepository.findById(team_id);
+        return await this.findFullTree(team.root);
+      })
+    );
+    
+    return teamRoots
+
+  }
+
+  // takes a root id and finds the 'full' computation tree
+  async findFullTree(rootId: string): Promise<NodeOutputType> {
+    const rootCompNode = await this.compNodeRepository.findById(rootId);
+    if (rootCompNode == null) {
+      throw new Error("No root found");
+    }
+
+    let children;
+    if (rootCompNode.children_ids == []) {
+      children = [] as NodeOutputType[];
+    } else {
+      children = await Promise.all(rootCompNode.children_ids.map((child_id) => {
+        return this.findFullTree(child_id);
+      }));
+    }
+    
     return {
-      id: "someID",
-      subarray: [] as unknown as [number],
-      merge_index: 0,
-      children: [],
+      id: rootCompNode.id,
+      subarray: rootCompNode.subarray,
+      merge_index: rootCompNode.merge_index,
+      children,
     }
   }
 
@@ -78,7 +110,10 @@ export class GameControllerController {
 	}
 
 	  let team = await this.teamRepository.findOne({
-		  where: {game_id: game_hash, team_name}
+		  where: {
+        game_id: game_hash, 
+        team_name: team_name
+      }
 	  });
 
 	  console.log(team)
@@ -89,7 +124,7 @@ export class GameControllerController {
 		  let node = await this.compNodeRepository.create({
 			game_id: game_hash,
 			merge_index: 0,
-			subarray: [null, null, null, null],
+			subarray: [],
 			team_name,
 		  });
 
@@ -245,6 +280,5 @@ export class GameControllerController {
     }
     return "wow that worked?";
   }
-
   
 }
