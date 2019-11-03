@@ -256,7 +256,7 @@ export class GameControllerController {
 		sub[getFirstNull(sub)] = toEnter;    
 
 		// check if we are done for the subarray
-		if (sub.length - 1 === leftChild.subarray.length + rightChild.subarray.length) {      
+		if (getFirstNull(sub) === leftChild.subarray.length + rightChild.subarray.length - 1) {      
 			sub[getFirstNull(sub)] = otherElem;
 
 			await this.compNodeRepository.updateById(comp.id, {
