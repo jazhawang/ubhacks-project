@@ -277,18 +277,6 @@ export class GameControllerController {
 
 
   async createNodeTree(game_hash: string, team_name: string, arrayLength: number) {
-<<<<<<< HEAD
-    const game = await this.gameRepository.findOne({
-      where: { game_hash: game_hash }
-    });
-    if (game == null) {
-      throw new Error("No game hash found");
-    }
-    let team = await this.teamRepository.findOne({
-      where: { game_id: game_hash, team_name: team_name }
-    });
-=======
->>>>>>> 292624eaf85e0973c97e67877be64c8157571fd4
 
     var numLayers = (Math.log(arrayLength) / Math.log(2)) + 1
     //make the tree and return the root
@@ -348,5 +336,38 @@ export class GameControllerController {
   });
   return node
 }
+
+
+
+async fillArrayBase(root){
+  //the first index of the leaves is equal to the length of the array
+  var firstIndex = root.subarray.length
+  var numberOfChildren = firstIndex//recall that first index also equals the length of the array
+  //get a shuffled array of numbers
+  var shuffledArray=this.randomArray(numberOfChildren)
+
+  var counter = 0;
+  //go through each index of the leaves and set the subarray of each leaf to contain a number from the shuffled array 
+  for (let i = firstIndex; i < firstIndex + numberOfChildren; i++) {
+    const currentLeafNode = await this.compNodeRepository.findById(i);
+    currentLeafNode.subarray = [shuffledArray[counter]];
+    counter ++;
+  }
+  return true;
+}
+
+
+async randomArray(n) {
+	const a = [...new Array(n)].map((_, i) => i)
+	for (let i = 1; i < n; i++) {
+		const j = Math.floor(Math.random() * (n - i)) + i
+		const t = a[i]
+		a[i] = a[j]
+		a[j] = t
+	}
+	return a
+}
+
+
 }
 
