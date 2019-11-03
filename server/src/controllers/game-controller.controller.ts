@@ -293,8 +293,9 @@ export class GameControllerController {
 	async createNodeTree(game_hash: string, team_name: string, arrayLength: number) {
 		var numLayers = (Math.log(arrayLength) / Math.log(2)) + 1
 		//make the tree and return the root
-		return this.nodeTreeRecursive(game_hash, team_name, numLayers, 1, 1);
-
+		const rootNode = await this.nodeTreeRecursive(game_hash, team_name, numLayers, 1, 1);
+		await this.fillArrayBase(rootNode);
+		return rootNode;
 	}
 
 	//return the root
@@ -349,8 +350,6 @@ export class GameControllerController {
 		});
 		return node
 	}
-
-
 
 	async fillArrayBase(root: CompNode){
 		const makeId = (n: number) => 
