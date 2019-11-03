@@ -281,7 +281,7 @@ export class GameControllerController {
   }
 
 
-  async function createNodeTree(game_hash, team_name, arrayLength) {
+  async createNodeTree(game_hash: string, team_name: string, arrayLength: number) {
   const game = await this.gameRepository.findOne({
     where: { game_hash: game_hash }
   });
@@ -294,12 +294,18 @@ export class GameControllerController {
 
   var numLayers = (Math.log(arrayLength) / Math.log(2)) + 1
   //make the tree and return the root
-  return nodeTreeRecursive(game_hash, team_name, numLayers, 1, 1);
+  return this.nodeTreeRecursive(game_hash, team_name, numLayers, 1, 1);
 
 }
 
 //return the root
-async function nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer, currentId): Promise<CompNode> {
+async nodeTreeRecursive(
+  game_hash: string, 
+  team_name: string, 
+  numLayers: number, 
+  currentLayer: number, 
+  currentId: number
+  ): Promise<CompNode> {
   //create the subarray
   var arrayLength = Math.pow(2, (numLayers - currentLayer))
   var nodeSubarray = new Array(arrayLength);
@@ -309,7 +315,7 @@ async function nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer, 
 
   if (currentLayer == numLayers) {
     //the base case if at the root
-    let node = await this.CompNodeRepository.create({
+    let node = await this.compNodeRepository.create({
       game_id: game_hash,
       merge_index: 0,
       subarray: nodeSubarray,
@@ -324,13 +330,13 @@ async function nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer, 
   //call the function recursively
   //left child
   var leftId = currentId * 2
-  nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2);
+  this.nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2);
   //right child
   var rightId = currentId * 2 + 1
-  nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2 + 1);
+  this.nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2 + 1);
 
   //create the node
-  let node = await this.CompNodeRepository.create({
+  let node = await this.compNodeRepository.create({
     game_id: game_hash,
     merge_index: 0,
     subarray: nodeSubarray,
