@@ -95,9 +95,7 @@ export class GameControllerController {
   async getNextComp(
     @param.path.string('game_hash') game_hash: string,
     @param.path.string('team_name') team_name: string,
-  ): Promise<CompType> {
-
-
+  ): Promise<CompType | null> {
     let game = await this.gameRepository.findOne({
       where: { game_hash: game_hash }
     });
@@ -127,7 +125,7 @@ export class GameControllerController {
       console.log(team)
     }
 
-        if (game == null) {
+    if (game == null) {
       //throw new Error("No game hash found");
       game = await this.gameRepository.create({
         game_hash,
@@ -155,7 +153,7 @@ export class GameControllerController {
         }
       });
       if (comp == null) {
-        throw new Error("no comp that is either available or waiting");
+		  return null;
       }
     } else {
       // put the available comp to "waiting"
@@ -289,36 +287,42 @@ export class GameControllerController {
 
 
   async createNodeTree(game_hash: string, team_name: string, arrayLength: number) {
-  /* const game = await this.gameRepository.findOne({
-    where: { game_hash: game_hash }
-  });
-  if (game == null) {
-    throw new Error("No game hash found");
-  } */
-  /* let team = await this.teamRepository.findOne({
-    where: { game_id: game_hash, team_name: team_name }
-  }); */
+<<<<<<< HEAD
+    const game = await this.gameRepository.findOne({
+      where: { game_hash: game_hash }
+    });
+    if (game == null) {
+      throw new Error("No game hash found");
+    }
+    let team = await this.teamRepository.findOne({
+      where: { game_id: game_hash, team_name: team_name }
+    });
+=======
+>>>>>>> 292624eaf85e0973c97e67877be64c8157571fd4
 
-  var numLayers = (Math.log(arrayLength) / Math.log(2)) + 1
-  //make the tree and return the root
-  return this.nodeTreeRecursive(game_hash, team_name, numLayers, 1, 1);
+    var numLayers = (Math.log(arrayLength) / Math.log(2)) + 1
+    //make the tree and return the root
+    return this.nodeTreeRecursive(game_hash, team_name, numLayers, 1, 1);
 
-}
-
-//return the root
-async nodeTreeRecursive(
-  game_hash: string, 
-  team_name: string, 
-  numLayers: number, 
-  currentLayer: number, 
-  currentId: number
-  ): Promise<CompNode> {
-  //create the subarray
-  var arrayLength = Math.pow(2, (numLayers - currentLayer))
-  var nodeSubarray = new Array(arrayLength);
-  for (var i = 0; i < arrayLength; i++) {
-    nodeSubarray[i] = null;
   }
+
+  //return the root
+  async nodeTreeRecursive(
+    game_hash: string,
+    team_name: string,
+    numLayers: number,
+    currentLayer: number,
+    currentId: number
+  ): Promise<CompNode> {
+    //create the subarray
+    var arrayLength = Math.pow(2, (numLayers - currentLayer))
+    var nodeSubarray = new Array(arrayLength);
+    for (var i = 0; i < arrayLength; i++) {
+      nodeSubarray[i] = null;
+    }
+
+  const makeId = (n: number) => 
+	  `${game_hash},${team_name},${n}`;
 
   if (currentLayer == numLayers) {
     //the base case if at the root
@@ -327,9 +331,9 @@ async nodeTreeRecursive(
       merge_index: 0,
       subarray: nodeSubarray,
       team_name: team_name,
-      id: currentId.toString(),
+	  id: makeId(currentId),
       status: "blocked",
-      children_ids: [],
+      children_ids: [makeId(leftId), makeId(rightId)],
     });
     return node
   }
@@ -348,9 +352,9 @@ async nodeTreeRecursive(
     merge_index: 0,
     subarray: nodeSubarray,
     team_name: team_name,
-    id: currentId.toString(),
+	id: makeId(currentId),
     status: "blocked",
-    children_ids: [leftId.toString(), rightId.toString()],
+    children_ids: [makeId(leftId), makeId(rightId)],
   });
   return node
 }
