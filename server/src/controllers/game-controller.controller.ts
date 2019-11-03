@@ -80,6 +80,7 @@ export class GameControllerController {
       id: rootCompNode.id,
       subarray: rootCompNode.subarray,
       merge_index: rootCompNode.merge_index,
+      team_name: rootCompNode.team_name,
       children,
     }
   }

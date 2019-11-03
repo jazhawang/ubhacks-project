@@ -3,7 +3,8 @@ export interface NodeOutputType {
     id: string;
     subarray: number[];
     merge_index: number;
-    children: NodeOutputType[];    
+    children: NodeOutputType[];  
+    team_name?: string;  
 }
 
 export interface CompType {
