@@ -123,8 +123,8 @@ function App() {
 	return (
 		<div className="App">
 			<header className="App-header">
-			{ game && !game.error && game.map(node => (
-				<div className={node.color || 'red'}>
+			{ game && !game.error && game.map((node, i) => (
+				<div className={node.color || (i ? 'blue' : 'red')}>
 					<div className="tree-container">
 						<div className="team-title">
 							{ node.team_name }
