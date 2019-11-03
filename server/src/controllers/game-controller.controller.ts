@@ -89,6 +89,7 @@ export class GameControllerController {
         where: {
           game_id: game.id,
           status: "waiting",
+          team_name: team_name,
         }
       });
       if (comp == null) {
@@ -141,8 +142,79 @@ export class GameControllerController {
     comp: CompType,
   ): Promise<string> {    
     
-    return "Yes"
+    const game = await this.gameRepository.findOne({
+      where: {game_hash: game_hash}
+    });
+    
+    if (game == null) {
+      throw new Error("No game hash found");
+    }
+
+    const compNode = await this.compNodeRepository.findById(comp.id);
+    let leftChild = await this.compNodeRepository.findById(compNode.children_ids[0]);
+    let rightChild = await this.compNodeRepository.findById(compNode.children_ids[1]);
+
+    if (leftChild.status != "done" || rightChild.status != "done") {
+      throw new Error("Children not done");
+    }
+
+    let toEnter, otherElem;
+    if(comp.swap) { // the right is smaller
+      await this.compNodeRepository.updateById(compNode.children_ids[1],{
+        //...rightChild,
+         merge_index: rightChild.merge_index + 1
+      });
+      toEnter = comp.comparing[1];
+      otherElem = comp.comparing[0];
+    } else { // left element is smaller
+      await this.compNodeRepository.updateById(compNode.children_ids[0],{
+        //...leftChild,
+        merge_index: leftChild.merge_index + 1
+      });
+      toEnter = comp.comparing[0];
+      otherElem = comp.comparing[1];
+    }
+
+    // update the main subarray
+    let sub = compNode.subarray;
+    sub.concat([toEnter]);
+
+    // check if we are done for the subarray
+    if (sub.length - 1 === leftChild.subarray.length + rightChild.subarray.length) {
+      sub.concat([otherElem]);      
+
+      await this.compNodeRepository.updateById(comp.id, {
+        subarray: sub,
+        status: "done",
+      });
+      // we should update the other index, but i dont think we need to??
+
+      // find the parent of this id
+      const all = await this.compNodeRepository.find();
+      const parent = all.filter((compNode: CompNode) => {
+        return compNode.children_ids.includes(comp.id);
+      });
+      if (parent.length != 1) {
+        throw new Error ("bad parent number");
+      }
+      const soleParent = parent[0];
+
+      // check if parent can be available
+      if ((await this.compNodeRepository.findById(soleParent.children_ids[0])).status == "done" &&
+          (await this.compNodeRepository.findById(soleParent.children_ids[1])).status == "done")
+      {
+        await this.compNodeRepository.updateById(soleParent.id, {
+          status: "available",
+        });
+      }
+    } else {
+      await this.compNodeRepository.updateById(comp.id, {
+        subarray: sub,
+        status: "done",
+      });
+    }
+    return "wow that worked?";
   }
 
-
+  
 }
