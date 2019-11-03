@@ -299,7 +299,7 @@ async nodeTreeRecursive(
     nodeSubarray[i] = null;
   }
 
-  const makeId = (n) => 
+  const makeId = (n: number) => 
 	  `${game_hash},${team_name},${n}`;
 
   if (currentLayer == numLayers) {
