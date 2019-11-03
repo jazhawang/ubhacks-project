@@ -56,11 +56,7 @@ function countProgress(node) {
 	return size + (node.children ? node.children.reduce((count, child) => count + countProgress(child), 0) : 0)
 }
 
-const initialNodes = [makeNode(8), makeNode(8)]
-initialNodes[0].color = 'red'
-initialNodes[1].color = 'blue'
-
-const apiEndpoint = 'http://34.95.21.145'
+const apiEndpoint = 'http://34.95.21.145:3000'
 
 function parsePath() {
 	return window.location.pathname.split('/').slice(1)
@@ -74,19 +70,50 @@ function App() {
 
 	const startGame = (gameData) => {
 		setGame(gameData)
-		fetch(`${apiEndpoint}/${gameId}/${teamId}/next_comp`, { method: 'POST' })
-			.then(response => response.json())
-			.then(console.log)
+		if (!comparison) {
+			fetch(`${apiEndpoint}/${gameId}/${teamId}/next_comp`, { method: 'POST' })
+				.then(response => response.json())
+				.then(data => {
+					console.log(data)
+					setComparison(data)
+				})
+		}
 	}
 
 	useEffect(() => {
 		console.log(`${apiEndpoint}/${gameId}`)
-		fetch(`${apiEndpoint}/${gameId}`)
-			.then(response => response.json())
-			.then(data => startGame(data))
-	}, [])
+		const interval = setInterval(() => {
+			fetch(`${apiEndpoint}/${gameId}`)
+				.then(response => response.json())
+				.then(data => {
+					startGame(data)
+				})
+		}, 2000)
+		return () => clearInterval(interval)
+	}, [comparison])
 
 	const onSelect = (value) => {
+		console.log({
+			method: 'POST',
+			body: JSON.stringify({
+				id: comparison.id,
+				comparing: comparison.comparing,
+				team_name: 'a',
+				swap: (value !== comparison.comparing[0]),
+			})
+		})
+		fetch(`${apiEndpoint}/${gameId}/${teamId}`, {
+			method: 'POST',
+			body: JSON.stringify({
+				id: comparison.id,
+				comparing: comparison.comparing,
+				team_name: 'a',
+				swap: (value !== comparison.comparing[0]),
+			}),
+			headers: {
+			  'Content-Type': 'application/json'
+			}
+		})
 		setComparison(null);
 	}
 
@@ -94,7 +121,7 @@ function App() {
 		<div className="App">
 			<header className="App-header">
 			{ game && !game.error && game.map(node => (
-				<div className={node.color}>
+				<div className={node.color || 'red'}>
 					<div className="tree-container">
 						<div className="team-title">
 							{ node.team_name }
@@ -104,7 +131,7 @@ function App() {
 				</div>
 			)) }
 			</header>
-			{ comparison && <Modal comparing={comparison} onSelect={onSelect}/> }
+			{ comparison && <Modal comparing={comparison.comparing} onSelect={onSelect}/> }
 		</div>
 	)
 }
