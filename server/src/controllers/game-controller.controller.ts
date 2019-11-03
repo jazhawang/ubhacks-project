@@ -107,6 +107,14 @@ export class GameControllerController {
       }
     });
 
+    if (game == null) {
+      //throw new Error("No game hash found");
+      game = await this.gameRepository.create({
+        game_hash,
+        team_ids: [],
+      });
+    }
+
     console.log(team)
 
     if (!team) {
@@ -123,17 +131,12 @@ export class GameControllerController {
       });
 
       console.log(team)
+      await this.gameRepository.updateById(game.id, {
+        team_ids: game.team_ids.concat([team.id])
+      })
     }
 
-    if (game == null) {
-      //throw new Error("No game hash found");
-      game = await this.gameRepository.create({
-        game_hash,
-        team_ids: [team.id],
-      });
-    }
-
-
+    
     // try to get an action comp which is available
     let comp = await this.compNodeRepository.findOne({
       where: {
