@@ -1,33 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 
-import './App.css';
+import { Node } from './tree'
+import { Modal } from './modal'
 
-function Block({ value, used }) {
-	const className =
-		`block ${(typeof value !== 'number') && 'hidden'} ${used && 'used'}`
-	return <div className={className}>{value}</div>
-}
-
-function SubArray({ array, mergeIndex }) {
-	const className =
-		`subarray ${array.every(v => typeof v !== 'number') && 'hidden'}`
-	return (
-		<div className={className}>
-			{array.map((a, i) => Block({ value: a, used: mergeIndex > i }))}
-		</div>
-	)
-}
-
-function Node({ subarray, mergeIndex, children }) {
-	return (
-		<div className={`node`}>
-			<div className={`node-children-row`}>
-				{ children && children.map((child) => Node(child)) }
-			</div>
-			{ SubArray({ array: subarray, mergeIndex }) }
-		</div>
-	)
-}
+import './App.css'
 
 function randomArray(n) {
 	const a = [...new Array(n)].map((_, i) => i)
@@ -80,12 +56,14 @@ function countProgress(node) {
 	return size + (node.children ? node.children.reduce((count, child) => count + countProgress(child), 0) : 0)
 }
 
-const initialNodes = [makeNode(32), makeNode(32)]
+const initialNodes = [makeNode(8), makeNode(8)]
 initialNodes[0].color = 'red'
 initialNodes[1].color = 'blue'
 
 function App() {
 	const [nodes, setNodes] = useState(initialNodes);
+
+	const [comparison, setComparison] = useState([6, 5]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -93,9 +71,13 @@ function App() {
 				randomIterate(node)
 				return node
 			}))
-		}, 50)
+		}, 1000)
 		return () => clearInterval(interval)
 	}, [nodes])
+
+	const onSelect = (value) => {
+		setComparison(null);
+	}
 
 	const sortedNodes = nodes.slice().sort((a, b) =>
 		countProgress(b) - countProgress(a))
@@ -111,6 +93,7 @@ function App() {
 				</div>
 			)) }
 			</header>
+			{ comparison && <Modal comparing={comparison} onSelect={onSelect}/> }
 		</div>
 	)
 }

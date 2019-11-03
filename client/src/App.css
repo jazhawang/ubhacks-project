@@ -14,6 +14,8 @@
 	font: 20px monospace;
 	text-align: center;
 	line-height: 40px;
+
+	background: #333;
 }
 
 .hidden {
