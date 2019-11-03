@@ -70,14 +70,6 @@ function App() {
 
 	const startGame = (gameData) => {
 		setGame(gameData)
-		if (!comparison) {
-			fetch(`${apiEndpoint}/${gameId}/${teamId}/next_comp`, { method: 'POST' })
-				.then(response => response.json())
-				.then(data => {
-					console.log(data)
-					setComparison(data)
-				})
-		}
 	}
 
 	useEffect(() => {
@@ -91,6 +83,17 @@ function App() {
 		}, 2000)
 		return () => clearInterval(interval)
 	}, [comparison])
+
+	useEffect(() => {
+		if (!comparison) {
+			fetch(`${apiEndpoint}/${gameId}/${teamId}/next_comp`, { method: 'POST' })
+				.then(response => response.json())
+				.then(data => {
+					console.log(data)
+					setComparison(data)
+				})
+		}
+	}, [])
 
 	const onSelect = (value) => {
 		console.log({
