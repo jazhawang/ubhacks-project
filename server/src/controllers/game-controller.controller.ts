@@ -366,7 +366,8 @@ export class GameControllerController {
 		//go through each index of the leaves and set the subarray of each leaf to contain a number from the shuffled array 
 		for (let i = firstIndex; i < firstIndex + numberOfChildren; i++) {
 			await this.compNodeRepository.updateById(makeId(i), {
-				subarray: [shuffledArray[counter] + 1],
+        subarray: [shuffledArray[counter] + 1],
+        status: "done",
 			});
 			// Set the parent to available
 			const parentI = Math.floor(i / 2);
