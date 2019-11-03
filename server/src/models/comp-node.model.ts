@@ -22,7 +22,7 @@ export class CompNode extends Entity {
   merge_index: number;
 
   @property({
-    type: 'array',
+    type: 'array',    
     itemType: 'number',
     required: true,
   })

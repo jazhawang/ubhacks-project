@@ -242,7 +242,7 @@ export class GameControllerController {
     const getFirstNull = (arr: number[]) => {
       let i: number;
       for(i = 0; i < arr.length; i++) {
-        if (arr[i] != null) {
+        if (!arr[i]) {
           return i;
         }
       }  
