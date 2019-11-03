@@ -277,7 +277,7 @@ export class GameControllerController {
 
 			// check if parent can be available
 			if ((await this.compNodeRepository.findById(soleParent.children_ids[0])).status == "done" &&
-				(await this.compNodeRepository.findById(soleParent.children_ids[1])).status == "done") {
+				  (await this.compNodeRepository.findById(soleParent.children_ids[1])).status == "done") {
 				await this.compNodeRepository.updateById(soleParent.id, {
 					status: "available",
 				});
@@ -285,7 +285,6 @@ export class GameControllerController {
 		} else {
 			await this.compNodeRepository.updateById(comp.id, {
 				subarray: sub,
-				status: "done",
 			});
 		}
 		return "wow that worked?";
