@@ -6,6 +6,7 @@ export class Team extends Entity {
     type: 'string',
     id: true,
     generated: true,
+    defaultFn: 'uuid',
   })
   id?: string;
 
