@@ -6,10 +6,9 @@ export interface NodeOutputType {
     children: NodeOutputType[];    
 }
 
-
 export interface CompType {
-    id: string;
+    id: string; // id of the comp type
     comparing: number[];
-    result?: number[];
+    swap?: boolean;
     team_name?: string;
 }

@@ -6,6 +6,7 @@ export class Game extends Entity {
     type: 'string',
     id: true,
     generated: true,
+    defaultFn: 'uuid',
   })
   id?: string;
 
@@ -18,9 +19,9 @@ export class Game extends Entity {
   @property({
     type: 'array',    
     itemType: 'string',
+    required: true,
   })
-  team_ids?: string[];
-
+  team_ids: string[];
 
   constructor(data?: Partial<Game>) {
     super(data);

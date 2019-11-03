@@ -6,6 +6,7 @@ export class Team extends Entity {
     type: 'string',
     id: true,
     generated: true,
+    defaultFn: 'uuid',
   })
   id?: string;
 
@@ -21,6 +22,17 @@ export class Team extends Entity {
   })
   usernames?: string[];
 
+  @property({
+    type: 'string',
+    required: true,
+  })
+  root: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  game_id: string;
 
   constructor(data?: Partial<Team>) {
     super(data);

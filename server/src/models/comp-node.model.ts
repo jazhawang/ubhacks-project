@@ -5,9 +5,10 @@ export class CompNode extends Entity {
   @property({
     type: 'string',
     id: true,
-    generated: true,
+    generated: true,    
+    defaultFn: 'uuid',
   })
-  id?: string;
+  id: string;
 
   @property({
     type: 'string',    
@@ -31,7 +32,7 @@ export class CompNode extends Entity {
   @property({
     type: 'array',
     itemType: 'string',
-    required: true,
+    required: false,
   })
   children_ids: string[];
 
@@ -43,7 +44,7 @@ export class CompNode extends Entity {
 
   @property({
     type: 'string',
-    required: true,    
+    required: true,
   })
   team_name: string;
 

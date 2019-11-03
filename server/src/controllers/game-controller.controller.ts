@@ -43,12 +43,44 @@ export class GameControllerController {
   })
   async getInfo(
     @param.path.string('game_hash') game_hash: string,
-  ): Promise<NodeOutputType> {
+  ): Promise<NodeOutputType[]> {
+    const game = await this.gameRepository.findOne({ where: { game_hash } });
+    if (game == null) {
+      throw new Error("No game found");
+    }
+
+    const teamRoots = await Promise.all(
+      game.team_ids.map(async (team_id) => {
+        const team = await this.teamRepository.findById(team_id);
+        return await this.findFullTree(team.root);
+      })
+    );
+
+    return teamRoots
+
+  }
+
+  // takes a root id and finds the 'full' computation tree
+  async findFullTree(rootId: string): Promise<NodeOutputType> {
+    const rootCompNode = await this.compNodeRepository.findById(rootId);
+    if (rootCompNode == null) {
+      throw new Error("No root found");
+    }
+
+    let children;
+    if (rootCompNode.children_ids == []) {
+      children = [] as NodeOutputType[];
+    } else {
+      children = await Promise.all(rootCompNode.children_ids.map((child_id) => {
+        return this.findFullTree(child_id);
+      }));
+    }
+
     return {
-      id: "someID",
-      subarray: [] as unknown as [number],
-      merge_index: 0,
-      children: [],
+      id: rootCompNode.id,
+      subarray: rootCompNode.subarray,
+      merge_index: rootCompNode.merge_index,
+      children,
     }
   }
 
@@ -66,12 +98,45 @@ export class GameControllerController {
   ): Promise<CompType> {
 
 
-    const game = await this.gameRepository.findOne({
+    let game = await this.gameRepository.findOne({
       where: { game_hash: game_hash }
     });
 
     if (game == null) {
-      throw new Error("No game hash found");
+      //throw new Error("No game hash found");
+      game = await this.gameRepository.create({
+        game_hash
+      });
+    }
+
+    let team = await this.teamRepository.findOne({
+      where: {
+        game_id: game_hash,
+        team_name: team_name
+      }
+    });
+
+    console.log(team)
+
+    if (!team) {
+      console.log('creating node for new team')
+
+      let node = await this.compNodeRepository.create({
+        game_id: game_hash,
+        merge_index: 0,
+        subarray: [],
+        team_name,
+      });
+
+      console.log('creating team')
+
+      team = await this.teamRepository.create({
+        team_name,
+        game_id: game_hash,
+        root: node.id,
+      });
+
+      console.log(team)
     }
 
     // try to get an action comp which is available
@@ -89,6 +154,7 @@ export class GameControllerController {
         where: {
           game_id: game.id,
           status: "waiting",
+          team_name: team_name,
         }
       });
       if (comp == null) {
@@ -141,8 +207,79 @@ export class GameControllerController {
     comp: CompType,
   ): Promise<string> {
 
-    return "Yes"
+    const game = await this.gameRepository.findOne({
+      where: { game_hash: game_hash }
+    });
+
+    if (game == null) {
+      throw new Error("No game hash found");
+    }
+
+    const compNode = await this.compNodeRepository.findById(comp.id);
+    let leftChild = await this.compNodeRepository.findById(compNode.children_ids[0]);
+    let rightChild = await this.compNodeRepository.findById(compNode.children_ids[1]);
+
+    if (leftChild.status != "done" || rightChild.status != "done") {
+      throw new Error("Children not done");
+    }
+
+    let toEnter, otherElem;
+    if (comp.swap) { // the right is smaller
+      await this.compNodeRepository.updateById(compNode.children_ids[1], {
+        //...rightChild,
+        merge_index: rightChild.merge_index + 1
+      });
+      toEnter = comp.comparing[1];
+      otherElem = comp.comparing[0];
+    } else { // left element is smaller
+      await this.compNodeRepository.updateById(compNode.children_ids[0], {
+        //...leftChild,
+        merge_index: leftChild.merge_index + 1
+      });
+      toEnter = comp.comparing[0];
+      otherElem = comp.comparing[1];
+    }
+
+    // update the main subarray
+    let sub = compNode.subarray;
+    sub.concat([toEnter]);
+
+    // check if we are done for the subarray
+    if (sub.length - 1 === leftChild.subarray.length + rightChild.subarray.length) {
+      sub.concat([otherElem]);
+
+      await this.compNodeRepository.updateById(comp.id, {
+        subarray: sub,
+        status: "done",
+      });
+      // we should update the other index, but i dont think we need to??
+
+      // find the parent of this id
+      const all = await this.compNodeRepository.find();
+      const parent = all.filter((compNode: CompNode) => {
+        return compNode.children_ids.includes(comp.id);
+      });
+      if (parent.length != 1) {
+        throw new Error("bad parent number");
+      }
+      const soleParent = parent[0];
+
+      // check if parent can be available
+      if ((await this.compNodeRepository.findById(soleParent.children_ids[0])).status == "done" &&
+        (await this.compNodeRepository.findById(soleParent.children_ids[1])).status == "done") {
+        await this.compNodeRepository.updateById(soleParent.id, {
+          status: "available",
+        });
+      }
+    } else {
+      await this.compNodeRepository.updateById(comp.id, {
+        subarray: sub,
+        status: "done",
+      });
+    }
+    return "wow that worked?";
   }
+
 
   async function createNodeTree(game_hash, team_name, arrayLength) {
   const game = await this.gameRepository.findOne({
@@ -204,6 +341,5 @@ async function nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer, 
   });
   return node
 }
-
 }
 
