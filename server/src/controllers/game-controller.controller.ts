@@ -366,6 +366,12 @@ export class GameControllerController {
 			await this.compNodeRepository.updateById(makeId(i), {
 				subarray: [shuffledArray[counter] + 1],
 			});
+			// Set the parent to available
+			const parentI = Math.floor(i / 2);
+			await this.compNodeRepository.updateById(makeId(parentI), {
+				status: 'available',
+			});
+
 			counter++;
 		}
 		return true;
