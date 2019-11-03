@@ -60,7 +60,7 @@ const initialNodes = [makeNode(8), makeNode(8)]
 initialNodes[0].color = 'red'
 initialNodes[1].color = 'blue'
 
-const apiEndpoint = 'http://localhost:3000'
+const apiEndpoint = 'http://34.95.21.145'
 
 function parsePath() {
 	return window.location.pathname.split('/').slice(1)
@@ -91,6 +91,10 @@ function App() {
 	}
 
 	const node = game
+
+	if (node) {
+		console.log(node)
+	}
 
 	return (
 		<div className="App">
