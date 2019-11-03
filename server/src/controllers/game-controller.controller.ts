@@ -111,6 +111,7 @@ export class GameControllerController {
 		if (game == null) {
 			//throw new Error("No game hash found");
 			game = await this.gameRepository.create({
+        id: game_hash,
 				game_hash,
 				team_ids: [],
 			});
@@ -196,7 +197,8 @@ export class GameControllerController {
 						properties: {
 							id: { type: "string" },
 							comparing: { type: "array", items: { type: "number" } },
-							result: { type: "array", items: { type: "number" } },
+              //result: { type: "array", items: { type: "number" } },
+              swap: {type: "boolean"},
 							team_name: { type: "string" },
 						},
 					},
@@ -254,7 +256,7 @@ export class GameControllerController {
 		sub[getFirstNull(sub)] = toEnter;    
 
 		// check if we are done for the subarray
-		if (sub.length - 1 === leftChild.subarray.length + rightChild.subarray.length) {      
+		if (getFirstNull(sub) === leftChild.subarray.length + rightChild.subarray.length - 1) {      
 			sub[getFirstNull(sub)] = otherElem;
 
 			await this.compNodeRepository.updateById(comp.id, {
@@ -275,7 +277,7 @@ export class GameControllerController {
 
 			// check if parent can be available
 			if ((await this.compNodeRepository.findById(soleParent.children_ids[0])).status == "done" &&
-				(await this.compNodeRepository.findById(soleParent.children_ids[1])).status == "done") {
+				  (await this.compNodeRepository.findById(soleParent.children_ids[1])).status == "done") {
 				await this.compNodeRepository.updateById(soleParent.id, {
 					status: "available",
 				});
@@ -283,7 +285,6 @@ export class GameControllerController {
 		} else {
 			await this.compNodeRepository.updateById(comp.id, {
 				subarray: sub,
-				status: "done",
 			});
 		}
 		return "wow that worked?";
@@ -364,7 +365,8 @@ export class GameControllerController {
 		//go through each index of the leaves and set the subarray of each leaf to contain a number from the shuffled array 
 		for (let i = firstIndex; i < firstIndex + numberOfChildren; i++) {
 			await this.compNodeRepository.updateById(makeId(i), {
-				subarray: [shuffledArray[counter] + 1],
+        subarray: [shuffledArray[counter] + 1],
+        status: "done",
 			});
 			// Set the parent to available
 			const parentI = Math.floor(i / 2);
