@@ -102,13 +102,6 @@ export class GameControllerController {
       where: { game_hash: game_hash }
     });
 
-    if (game == null) {
-      //throw new Error("No game hash found");
-      game = await this.gameRepository.create({
-        game_hash
-      });
-    }
-
     let team = await this.teamRepository.findOne({
       where: {
         game_id: game_hash,
@@ -133,6 +126,15 @@ export class GameControllerController {
 
       console.log(team)
     }
+
+        if (game == null) {
+      //throw new Error("No game hash found");
+      game = await this.gameRepository.create({
+        game_hash,
+        team_ids: [team.id],
+      });
+    }
+
 
     // try to get an action comp which is available
     let comp = await this.compNodeRepository.findOne({
@@ -277,15 +279,15 @@ export class GameControllerController {
 
 
   async createNodeTree(game_hash: string, team_name: string, arrayLength: number) {
-  const game = await this.gameRepository.findOne({
+  /* const game = await this.gameRepository.findOne({
     where: { game_hash: game_hash }
   });
   if (game == null) {
     throw new Error("No game hash found");
-  }
-  let team = await this.teamRepository.findOne({
+  } */
+  /* let team = await this.teamRepository.findOne({
     where: { game_id: game_hash, team_name: team_name }
-  });
+  }); */
 
   var numLayers = (Math.log(arrayLength) / Math.log(2)) + 1
   //make the tree and return the root
@@ -325,10 +327,10 @@ async nodeTreeRecursive(
   //call the function recursively
   //left child
   var leftId = currentId * 2
-  this.nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2);
+  await this.nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2);
   //right child
   var rightId = currentId * 2 + 1
-  this.nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2 + 1);
+  await this.nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2 + 1);
 
   //create the node
   let node = await this.compNodeRepository.create({
