@@ -1,11 +1,11 @@
 {
   "name": "server",
-  "connector": "mongodb",
-  "url": "mongodb+srv://admin:thisIsAStrongPassword123@cluster0-zkbun.mongodb.net/test?retryWrites=true&w=majority",
+  "connector": "mongodb",  
+  "url": "mongodb+srv://admin:thisIsAStrongPassword123@cluster0-zkbun.mongodb.net/test?retryWrites=true&w=majority",  
   "host": "localhost",
   "port": 0,
-  "user": "admin",
-  "password": "thisIsAStrongPassword123",
+  "user": "",
+  "password": "",
   "database": "",
   "useNewUrlParser": true,
   "useUnifiedTopology": true
