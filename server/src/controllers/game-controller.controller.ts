@@ -317,7 +317,7 @@ async nodeTreeRecursive(
       merge_index: 0,
       subarray: nodeSubarray,
       team_name: team_name,
-	  id: `${game_id},${team_name},${currentId}`,
+	  id: `${game_hash},${team_name},${currentId}`,
       status: "blocked",
       children_ids: [],
     });
@@ -338,7 +338,7 @@ async nodeTreeRecursive(
     merge_index: 0,
     subarray: nodeSubarray,
     team_name: team_name,
-	id: `${game_id},${team_name},${currentId}`,
+	id: `${game_hash},${team_name},${currentId}`,
     status: "blocked",
     children_ids: [leftId.toString(), rightId.toString()],
   });
