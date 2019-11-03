@@ -1,0 +1,86 @@
+.block {
+	padding: 4px;
+	margin: 2px;
+
+	width: 40px;
+	height: 40px;
+
+	border-radius: 4px;
+	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+
+	transition: 0.2s all;
+	color: white;
+
+	font: 20px monospace;
+	text-align: center;
+	line-height: 40px;
+}
+
+.hidden {
+	opacity: 0;
+}
+
+.used {
+	filter: brightness(0.8);
+}
+
+.subarray {
+	display: flex;
+	flex-direction: row;
+
+	background: #eee;
+	border-radius: 8px;
+	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+
+	padding: 4px;
+	margin: 8px;
+}
+
+.node {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.node-children-row {
+	display: flex;
+	flex-direction: row;
+}
+
+.tree-container {
+	margin: 8px;
+	padding: 4px;
+	border-radius: 16px;
+	box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.red .block, .red .tree-container {
+	background: #e2517c;
+}
+
+.blue .block, .blue .tree-container {
+	background: #517ce2;
+}
+
+.App {
+	text-align: center;
+}
+
+.App-logo {
+	height: 40vmin;
+}
+
+.App-header {
+	background-color: #f5f5dc;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-size: 32px;
+	color: white;
+}
+
+.App-link {
+	color: #09d3ac;
+}
