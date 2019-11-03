@@ -56,8 +56,7 @@ export class GameControllerController {
   @post('/{game_hash}/{team_name}/next_comp', {
     responses: {
       '200': {
-        description: 'return the next comp for a computation, if there are no free comps then choose a random one from the in-progress comps',
-        //content: {'application/json': {schema: CountSchema}},
+        description: 'return the next comp for a computation, if there are no free comps then choose a random one from the in-progress comps',        
       },
     },
   })
@@ -153,6 +152,23 @@ export class GameControllerController {
   async postComp(
     @param.path.string('game_hash') game_hash: string,
     @param.path.string('team_name') team_name: string,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              id: {type: "string"},
+              comparing: {type: "array", items: {type: "number"}},
+              result: {type: "array", items: {type: "number"}},
+              team_name: {type: "string"},
+            },
+          },
+        },
+      },
+    })
+    comp: CompType,
   ): Promise<string> {    
     
     return "Yes"

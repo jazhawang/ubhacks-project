@@ -60,38 +60,48 @@ const initialNodes = [makeNode(8), makeNode(8)]
 initialNodes[0].color = 'red'
 initialNodes[1].color = 'blue'
 
-function App() {
-	const [nodes, setNodes] = useState(initialNodes);
+const apiEndpoint = 'http://localhost:3000'
 
-	const [comparison, setComparison] = useState([6, 5]);
+function parsePath() {
+	return window.location.pathname.split('/').slice(1)
+}
+
+function App() {
+	const [game, setGame] = useState(null)
+	const [comparison, setComparison] = useState(null)
+
+	const [gameId, teamId] = parsePath()
+
+	const startGame = (gameData) => {
+		setGame(gameData)
+		fetch(`${apiEndpoint}/${gameId}/${teamId}/next_comp`, { method: 'POST' })
+			.then(response => response.json())
+			.then(console.log)
+	}
 
 	useEffect(() => {
-		const interval = setInterval(() => {
-			setNodes(nodes.map(node => {
-				randomIterate(node)
-				return node
-			}))
-		}, 1000)
-		return () => clearInterval(interval)
-	}, [nodes])
+		console.log(`${apiEndpoint}/${gameId}`)
+		fetch(`${apiEndpoint}/${game}`)
+			.then(response => response.json())
+			.then(data => startGame(data))
+	}, [])
 
 	const onSelect = (value) => {
 		setComparison(null);
 	}
 
-	const sortedNodes = nodes.slice().sort((a, b) =>
-		countProgress(b) - countProgress(a))
+	const node = game
 
 	return (
 		<div className="App">
 			<header className="App-header">
-			{ sortedNodes.map((node) => (
+			{ node && (
 				<div className={node.color}>
 					<div className="tree-container">
 						{ Node(node) }
 					</div>
 				</div>
-			)) }
+			) }
 			</header>
 			{ comparison && <Modal comparing={comparison} onSelect={onSelect}/> }
 		</div>
