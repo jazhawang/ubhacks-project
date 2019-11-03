@@ -21,7 +21,6 @@ export class Game extends Entity {
   })
   team_ids?: string[];
 
-
   constructor(data?: Partial<Game>) {
     super(data);
   }

@@ -6,9 +6,9 @@ export interface NodeOutputType {
     children: NodeOutputType[];
 }
 
-
 export interface CompType {
     id: string;
     comparing: number[];
     result?: number[];
 }
+

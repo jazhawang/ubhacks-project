@@ -67,13 +67,43 @@ export class GameControllerController {
   ): Promise<CompType> {
     
     
-    const game = await this.gameRepository.findOne({
+    let game = await this.gameRepository.findOne({
       where: {game_hash: game_hash}
     });
     
     if (game == null) {
-      throw new Error("No game hash found");
-    }
+		//throw new Error("No game hash found");
+		game = await this.gameRepository.create({
+			game_hash
+		});
+	}
+
+	  let team = await this.teamRepository.findOne({
+		  where: {game_id: game_hash, team_name}
+	  });
+
+	  console.log(team)
+
+	  if (!team) {
+		console.log('creating node for new team')
+
+		  let node = await this.compNodeRepository.create({
+			game_id: game_hash,
+			merge_index: 0,
+			subarray: [null, null, null, null],
+			team_name,
+		  });
+
+		console.log('creating team')
+
+		  team = await this.teamRepository.create({
+		  	team_name,
+		  	game_id: game_hash,
+			root: node.id,
+		  });
+
+		  console.log(team)
+	  }
 
     // try to get an action comp which is available
     let comp = await this.compNodeRepository.findOne({
@@ -107,9 +137,9 @@ export class GameControllerController {
     // assume that if the left child is a leaf then the right child is a leaf    
     return {
       id: comp.id!,
-      comparing: [leftChild.subarray[leftChild.merge_index], 
-                  rightChild.subarray[rightChild.merge_index]],
-    };    
+      comparing: [leftChild.subarray[leftChild.merge_index] as number, 
+                  rightChild.subarray[rightChild.merge_index] as number],
+    };
   }
 
 

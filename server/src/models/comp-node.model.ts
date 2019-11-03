@@ -26,12 +26,12 @@ export class CompNode extends Entity {
     itemType: 'number',
     required: true,
   })
-  subarray: number[];
+  subarray: (number | null)[];
 
   @property({
     type: 'array',
     itemType: 'string',
-    required: true,
+    required: false,
   })
   children_ids: string[];
 
@@ -43,7 +43,7 @@ export class CompNode extends Entity {
 
   @property({
     type: 'string',
-    required: true,    
+    required: true,
   })
   team_name: string;
 
