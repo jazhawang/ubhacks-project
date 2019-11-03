@@ -237,13 +237,23 @@ export class GameControllerController {
       otherElem = comp.comparing[1];
     }
 
+    const getFirstNull = (arr: number[]) => {
+      let i: number;
+      for(i = 0; i < arr.length; i++) {
+        if (arr[i] != null) {
+          return i;
+        }
+      }  
+      throw new Error("Cannot write to subarray, all values in subarray are non-null");
+    }
     // update the main subarray
     let sub = compNode.subarray;
-    sub.concat([toEnter]);
+
+    sub[getFirstNull(sub)] = toEnter;    
 
     // check if we are done for the subarray
-    if (sub.length - 1 === leftChild.subarray.length + rightChild.subarray.length) {
-      sub.concat([otherElem]);
+    if (sub.length - 1 === leftChild.subarray.length + rightChild.subarray.length) {      
+      sub[getFirstNull(sub)] = otherElem;
 
       await this.compNodeRepository.updateById(comp.id, {
         subarray: sub,
