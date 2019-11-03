@@ -304,8 +304,7 @@ export class GameControllerController {
 		team_name: string,
 		numLayers: number,
 		currentLayer: number,
-		currentId: number
-	): Promise<CompNode> {
+		currentId: number): Promise<CompNode> {
 		//create the subarray
 		var arrayLength = Math.pow(2, (numLayers - currentLayer))
 		var nodeSubarray = new Array(arrayLength);
@@ -365,7 +364,7 @@ export class GameControllerController {
 		//go through each index of the leaves and set the subarray of each leaf to contain a number from the shuffled array 
 		for (let i = firstIndex; i < firstIndex + numberOfChildren; i++) {
 			await this.compNodeRepository.updateById(makeId(i), {
-				subarray: [shuffledArray[counter]],
+				subarray: [shuffledArray[counter] + 1],
 			});
 			counter++;
 		}
