@@ -95,9 +95,7 @@ export class GameControllerController {
   async getNextComp(
     @param.path.string('game_hash') game_hash: string,
     @param.path.string('team_name') team_name: string,
-  ): Promise<CompType> {
-
-
+  ): Promise<CompType | null> {
     let game = await this.gameRepository.findOne({
       where: { game_hash: game_hash }
     });
@@ -127,7 +125,7 @@ export class GameControllerController {
       console.log(team)
     }
 
-        if (game == null) {
+    if (game == null) {
       //throw new Error("No game hash found");
       game = await this.gameRepository.create({
         game_hash,
@@ -155,7 +153,7 @@ export class GameControllerController {
         }
       });
       if (comp == null) {
-        throw new Error("no comp that is either available or waiting");
+		  return null;
       }
     } else {
       // put the available comp to "waiting"
@@ -279,15 +277,6 @@ export class GameControllerController {
 
 
   async createNodeTree(game_hash: string, team_name: string, arrayLength: number) {
-  /* const game = await this.gameRepository.findOne({
-    where: { game_hash: game_hash }
-  });
-  if (game == null) {
-    throw new Error("No game hash found");
-  } */
-  /* let team = await this.teamRepository.findOne({
-    where: { game_id: game_hash, team_name: team_name }
-  }); */
 
   var numLayers = (Math.log(arrayLength) / Math.log(2)) + 1
   //make the tree and return the root
@@ -310,6 +299,9 @@ async nodeTreeRecursive(
     nodeSubarray[i] = null;
   }
 
+  const makeId = (n) => 
+	  `${game_hash},${team_name},${n}`;
+
   if (currentLayer == numLayers) {
     //the base case if at the root
     let node = await this.compNodeRepository.create({
@@ -317,7 +309,7 @@ async nodeTreeRecursive(
       merge_index: 0,
       subarray: nodeSubarray,
       team_name: team_name,
-	  id: `${game_hash},${team_name},${currentId}`,
+	  id: makeId(currentId),
       status: "blocked",
       children_ids: [],
     });
@@ -338,9 +330,9 @@ async nodeTreeRecursive(
     merge_index: 0,
     subarray: nodeSubarray,
     team_name: team_name,
-	id: `${game_hash},${team_name},${currentId}`,
+	id: makeId(currentId),
     status: "blocked",
-    children_ids: [leftId.toString(), rightId.toString()],
+    children_ids: [makeId(leftId), makeId(rightId)],
   });
   return node
 }
