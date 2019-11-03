@@ -18,7 +18,7 @@ export class Game extends Entity {
   @property({
     type: 'array',    
     itemType: 'string',
-    required: true,
+    //required: true,
   })
   team_ids: string[];
 
