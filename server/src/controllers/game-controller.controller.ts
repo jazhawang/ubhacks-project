@@ -121,12 +121,7 @@ export class GameControllerController {
     if (!team) {
       console.log('creating node for new team')
 
-      let node = await this.compNodeRepository.create({
-        game_id: game_hash,
-        merge_index: 0,
-        subarray: [],
-        team_name,
-      });
+      let node = await this.createNodeTree(game_hash, team_name, 8);
 
       console.log('creating team')
 
