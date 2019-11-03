@@ -10,6 +10,11 @@ export class CompNode extends Entity {
   id?: string;
 
   @property({
+    type: 'string',    
+  })
+  game_id: string;
+
+  @property({
     type: 'number',
     required: true,
     default: 0,
@@ -30,6 +35,17 @@ export class CompNode extends Entity {
   })
   children_ids: string[];
 
+  @property({
+    type: 'string',
+    default: "blocked",
+  })
+  status: string; // "blocked" | "available" | "done" | "waiting"
+
+  @property({
+    type: 'string',
+    required: true,    
+  })
+  team_name: string;
 
   constructor(data?: Partial<CompNode>) {
     super(data);
