@@ -4,13 +4,13 @@ import './App.css';
 
 function Block({ value, used }) {
 	const className =
-		`block ${(typeof value !== 'number') && 'hidden'} ${used && 'used'}`
+		`block ${!value && 'hidden'} ${used && 'used'}`
 	return <div className={className}>{value}</div>
 }
 
 function SubArray({ array, mergeIndex }) {
 	const className =
-		`subarray ${array.every(v => typeof v !== 'number') && 'hidden'}`
+		`subarray ${array.every(v => !v) && 'hidden'}`
 	return (
 		<div className={className}>
 			{array.map((a, i) => Block({ value: a, used: mergeIndex > i }))}

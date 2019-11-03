@@ -52,7 +52,7 @@ function randomIterate(node) {
 }
 
 function countProgress(node) {
-	const size = node.subarray.reduce((count, v) => typeof v === 'number' ? count + 1 : count, 0)
+	const size = node.subarray.reduce((count, v) => v ? count + 1 : count, 0)
 	return size + (node.children ? node.children.reduce((count, child) => count + countProgress(child), 0) : 0)
 }
 
@@ -96,6 +96,9 @@ function App() {
 			{ game && !game.error && game.map(node => (
 				<div className={node.color}>
 					<div className="tree-container">
+						<div className="team-title">
+							{ node.team_name }
+						</div>
 						{ Node(node) }
 					</div>
 				</div>
