@@ -197,7 +197,8 @@ export class GameControllerController {
 						properties: {
 							id: { type: "string" },
 							comparing: { type: "array", items: { type: "number" } },
-							result: { type: "array", items: { type: "number" } },
+              //result: { type: "array", items: { type: "number" } },
+              swap: {type: "boolean"},
 							team_name: { type: "string" },
 						},
 					},
