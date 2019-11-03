@@ -312,7 +312,7 @@ export class GameControllerController {
 	  `${game_hash},${team_name},${n}`;
 
   if (currentLayer == numLayers) {
-    //the base case if at the root
+    //the base case if at the leaf
     let node = await this.compNodeRepository.create({
       game_id: game_hash,
       merge_index: 0,
@@ -320,7 +320,7 @@ export class GameControllerController {
       team_name: team_name,
 	  id: makeId(currentId),
       status: "blocked",
-      children_ids: [makeId(leftId), makeId(rightId)],
+      children_ids: [],
     });
     return node
   }
