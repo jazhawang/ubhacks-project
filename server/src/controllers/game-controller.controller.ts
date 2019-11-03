@@ -95,19 +95,10 @@ export class GameControllerController {
   async getNextComp(
     @param.path.string('game_hash') game_hash: string,
     @param.path.string('team_name') team_name: string,
-  ): Promise<CompType> {
-
-
+  ): Promise<CompType | null> {
     let game = await this.gameRepository.findOne({
       where: { game_hash: game_hash }
     });
-
-    if (game == null) {
-      //throw new Error("No game hash found");
-      game = await this.gameRepository.create({
-        game_hash
-      });
-    }
 
     let team = await this.teamRepository.findOne({
       where: {
@@ -121,12 +112,7 @@ export class GameControllerController {
     if (!team) {
       console.log('creating node for new team')
 
-      let node = await this.compNodeRepository.create({
-        game_id: game_hash,
-        merge_index: 0,
-        subarray: [],
-        team_name,
-      });
+      let node = await this.createNodeTree(game_hash, team_name, 8);
 
       console.log('creating team')
 
@@ -138,6 +124,15 @@ export class GameControllerController {
 
       console.log(team)
     }
+
+    if (game == null) {
+      //throw new Error("No game hash found");
+      game = await this.gameRepository.create({
+        game_hash,
+        team_ids: [team.id],
+      });
+    }
+
 
     // try to get an action comp which is available
     let comp = await this.compNodeRepository.findOne({
@@ -158,7 +153,7 @@ export class GameControllerController {
         }
       });
       if (comp == null) {
-        throw new Error("no comp that is either available or waiting");
+		  return null;
       }
     } else {
       // put the available comp to "waiting"
@@ -282,6 +277,7 @@ export class GameControllerController {
 
 
   async createNodeTree(game_hash: string, team_name: string, arrayLength: number) {
+<<<<<<< HEAD
     const game = await this.gameRepository.findOne({
       where: { game_hash: game_hash }
     });
@@ -291,6 +287,8 @@ export class GameControllerController {
     let team = await this.teamRepository.findOne({
       where: { game_id: game_hash, team_name: team_name }
     });
+=======
+>>>>>>> 292624eaf85e0973c97e67877be64c8157571fd4
 
     var numLayers = (Math.log(arrayLength) / Math.log(2)) + 1
     //make the tree and return the root
@@ -313,39 +311,42 @@ export class GameControllerController {
       nodeSubarray[i] = null;
     }
 
-    if (currentLayer == numLayers) {
-      //the base case if at the root
-      let node = await this.compNodeRepository.create({
-        game_id: game_hash,
-        merge_index: 0,
-        subarray: nodeSubarray,
-        team_name: team_name,
-        id: currentId.toString(),
-        status: "blocked",
-        children_ids: [],
-      });
-      return node
-    }
+  const makeId = (n: number) => 
+	  `${game_hash},${team_name},${n}`;
 
-    //call the function recursively
-    //left child
-    var leftId = currentId * 2
-    this.nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2);
-    //right child
-    var rightId = currentId * 2 + 1
-    this.nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2 + 1);
-
-    //create the node
+  if (currentLayer == numLayers) {
+    //the base case if at the root
     let node = await this.compNodeRepository.create({
       game_id: game_hash,
       merge_index: 0,
       subarray: nodeSubarray,
       team_name: team_name,
-      id: currentId.toString(),
+	  id: makeId(currentId),
       status: "blocked",
-      children_ids: [leftId.toString(), rightId.toString()],
+      children_ids: [makeId(leftId), makeId(rightId)],
     });
     return node
   }
+
+  //call the function recursively
+  //left child
+  var leftId = currentId * 2
+  await this.nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2);
+  //right child
+  var rightId = currentId * 2 + 1
+  await this.nodeTreeRecursive(game_hash, team_name, numLayers, currentLayer + 1, currentId * 2 + 1);
+
+  //create the node
+  let node = await this.compNodeRepository.create({
+    game_id: game_hash,
+    merge_index: 0,
+    subarray: nodeSubarray,
+    team_name: team_name,
+	id: makeId(currentId),
+    status: "blocked",
+    children_ids: [makeId(leftId), makeId(rightId)],
+  });
+  return node
+}
 }
 
