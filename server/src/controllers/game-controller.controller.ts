@@ -80,6 +80,7 @@ export class GameControllerController {
       id: rootCompNode.id,
       subarray: rootCompNode.subarray,
       merge_index: rootCompNode.merge_index,
+      team_name: rootCompNode.team_name,
       children,
     }
   }
@@ -107,6 +108,14 @@ export class GameControllerController {
       }
     });
 
+    if (game == null) {
+      //throw new Error("No game hash found");
+      game = await this.gameRepository.create({
+        game_hash,
+        team_ids: [],
+      });
+    }
+
     console.log(team)
 
     if (!team) {
@@ -123,17 +132,12 @@ export class GameControllerController {
       });
 
       console.log(team)
+      await this.gameRepository.updateById(game.id, {
+        team_ids: game.team_ids.concat([team.id])
+      })
     }
 
-    if (game == null) {
-      //throw new Error("No game hash found");
-      game = await this.gameRepository.create({
-        game_hash,
-        team_ids: [team.id],
-      });
-    }
-
-
+    
     // try to get an action comp which is available
     let comp = await this.compNodeRepository.findOne({
       where: {
@@ -238,7 +242,7 @@ export class GameControllerController {
     const getFirstNull = (arr: number[]) => {
       let i: number;
       for(i = 0; i < arr.length; i++) {
-        if (arr[i] != null) {
+        if (!arr[i]) {
           return i;
         }
       }  
@@ -345,5 +349,38 @@ export class GameControllerController {
   });
   return node
 }
+
+
+
+async fillArrayBase(root){
+  //the first index of the leaves is equal to the length of the array
+  var firstIndex = root.subarray.length
+  var numberOfChildren = firstIndex//recall that first index also equals the length of the array
+  //get a shuffled array of numbers
+  var shuffledArray=this.randomArray(numberOfChildren)
+
+  var counter = 0;
+  //go through each index of the leaves and set the subarray of each leaf to contain a number from the shuffled array 
+  for (let i = firstIndex; i < firstIndex + numberOfChildren; i++) {
+    const currentLeafNode = await this.compNodeRepository.findById(i);
+    currentLeafNode.subarray = [shuffledArray[counter]];
+    counter ++;
+  }
+  return true;
+}
+
+
+async randomArray(n) {
+	const a = [...new Array(n)].map((_, i) => i)
+	for (let i = 1; i < n; i++) {
+		const j = Math.floor(Math.random() * (n - i)) + i
+		const t = a[i]
+		a[i] = a[j]
+		a[j] = t
+	}
+	return a
+}
+
+
 }
 
