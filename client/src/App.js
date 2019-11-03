@@ -56,7 +56,7 @@ function countProgress(node) {
 	return size + (node.children ? node.children.reduce((count, child) => count + countProgress(child), 0) : 0)
 }
 
-const apiEndpoint = 'http://34.95.21.145:3000'
+const apiEndpoint = 'http://34.95.21.145'
 
 function parsePath() {
 	return window.location.pathname.split('/').slice(1)
