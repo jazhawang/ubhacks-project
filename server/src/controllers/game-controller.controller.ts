@@ -21,7 +21,7 @@ import {
 
 import {CompNode} from '../models';
 import {CompNodeRepository} from '../repositories';
-import {NodeOutputType, CompOutputType} from './types';
+import {NodeOutputType, CompType} from './types';
 
 export class GameControllerController {
   constructor(
@@ -60,13 +60,30 @@ export class GameControllerController {
   async getNextComp(    
     @param.path.string('game_hash') game_hash: string,
     @param.path.string('team_name') team_name: string,
-  ): Promise<CompOutputType> {
+  ): Promise<CompType> {
     
     return {
       id: "someID",
       comparing: [] as unknown as [number],
       result: [] as unknown as [number],
     }
+  }
+
+
+  @post('/{game_hash}/{team_name}/', {
+    responses: {
+      '200': {
+        description: 'post given JSON input ',        
+      },
+    },
+  })
+  async postComp(
+    @param.path.string('game_hash') game_hash: string,
+    @param.path.string('team_name') team_name: string,
+  ): Promise<string> {
+    
+    
+    return "Yes"
   }
 
 

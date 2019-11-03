@@ -7,7 +7,7 @@ export interface NodeOutputType {
 }
 
 
-export interface CompOutputType {
+export interface CompType {
     id: string;
     comparing: [number];
     result?: [number];
