@@ -80,6 +80,7 @@ export class GameControllerController {
       id: rootCompNode.id,
       subarray: rootCompNode.subarray,
       merge_index: rootCompNode.merge_index,
+      team_name: rootCompNode.team_name,
       children,
     }
   }
@@ -107,6 +108,14 @@ export class GameControllerController {
       }
     });
 
+    if (game == null) {
+      //throw new Error("No game hash found");
+      game = await this.gameRepository.create({
+        game_hash,
+        team_ids: [],
+      });
+    }
+
     console.log(team)
 
     if (!team) {
@@ -123,17 +132,12 @@ export class GameControllerController {
       });
 
       console.log(team)
+      await this.gameRepository.updateById(game.id, {
+        team_ids: game.team_ids.concat([team.id])
+      })
     }
 
-    if (game == null) {
-      //throw new Error("No game hash found");
-      game = await this.gameRepository.create({
-        game_hash,
-        team_ids: [team.id],
-      });
-    }
-
-
+    
     // try to get an action comp which is available
     let comp = await this.compNodeRepository.findOne({
       where: {
@@ -235,13 +239,23 @@ export class GameControllerController {
       otherElem = comp.comparing[1];
     }
 
+    const getFirstNull = (arr: number[]) => {
+      let i: number;
+      for(i = 0; i < arr.length; i++) {
+        if (!arr[i]) {
+          return i;
+        }
+      }  
+      throw new Error("Cannot write to subarray, all values in subarray are non-null");
+    }
     // update the main subarray
     let sub = compNode.subarray;
-    sub.concat([toEnter]);
+
+    sub[getFirstNull(sub)] = toEnter;    
 
     // check if we are done for the subarray
-    if (sub.length - 1 === leftChild.subarray.length + rightChild.subarray.length) {
-      sub.concat([otherElem]);
+    if (sub.length - 1 === leftChild.subarray.length + rightChild.subarray.length) {      
+      sub[getFirstNull(sub)] = otherElem;
 
       await this.compNodeRepository.updateById(comp.id, {
         subarray: sub,
@@ -277,7 +291,6 @@ export class GameControllerController {
 
 
   async createNodeTree(game_hash: string, team_name: string, arrayLength: number) {
-
     var numLayers = (Math.log(arrayLength) / Math.log(2)) + 1
     //make the tree and return the root
     return this.nodeTreeRecursive(game_hash, team_name, numLayers, 1, 1);
@@ -303,7 +316,7 @@ export class GameControllerController {
 	  `${game_hash},${team_name},${n}`;
 
   if (currentLayer == numLayers) {
-    //the base case if at the root
+    //the base case if at the leaf
     let node = await this.compNodeRepository.create({
       game_id: game_hash,
       merge_index: 0,
@@ -311,7 +324,7 @@ export class GameControllerController {
       team_name: team_name,
 	  id: makeId(currentId),
       status: "blocked",
-      children_ids: [makeId(leftId), makeId(rightId)],
+      children_ids: [],
     });
     return node
   }
