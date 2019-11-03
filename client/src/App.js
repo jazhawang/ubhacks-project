@@ -81,7 +81,7 @@ function App() {
 
 	useEffect(() => {
 		console.log(`${apiEndpoint}/${gameId}`)
-		fetch(`${apiEndpoint}/${game}`)
+		fetch(`${apiEndpoint}/${gameId}`)
 			.then(response => response.json())
 			.then(data => startGame(data))
 	}, [])
@@ -90,22 +90,16 @@ function App() {
 		setComparison(null);
 	}
 
-	const node = game
-
-	if (node) {
-		console.log(node)
-	}
-
 	return (
 		<div className="App">
 			<header className="App-header">
-			{ node && (
+			{ game && !game.error && game.map(node => (
 				<div className={node.color}>
 					<div className="tree-container">
 						{ Node(node) }
 					</div>
 				</div>
-			) }
+			)) }
 			</header>
 			{ comparison && <Modal comparing={comparison} onSelect={onSelect}/> }
 		</div>
