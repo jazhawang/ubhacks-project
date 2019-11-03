@@ -5,10 +5,9 @@ export class Team extends Entity {
   @property({
     type: 'string',
     id: true,
-    generated: true,
     defaultFn: 'uuid',
   })
-  id?: string;
+  id: string;
 
   @property({
     type: 'string',
